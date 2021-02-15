@@ -2,6 +2,7 @@ package com.szymongodzinski.shop.thing;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.util.Objects;
 
 @Entity
 public class Thing {
@@ -59,5 +60,21 @@ public class Thing {
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Thing thing = (Thing) o;
+        return quantity == thing.quantity &&
+                id.equals(thing.id) &&
+                name.equals(thing.name) &&
+                price.equals(thing.price);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, price, quantity);
     }
 }

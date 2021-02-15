@@ -1,7 +1,6 @@
 package com.szymongodzinski.shop.processing;
 
 import com.szymongodzinski.shop.order.Orders;
-import com.szymongodzinski.shop.order.OrdersService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,24 +11,10 @@ import java.util.Optional;
 public class ProcessingServiceImpl implements ProcessingService {
 
     private ProcessingRepository processingRepository;
-    private OrdersService ordersService;
 
     @Autowired
-    public ProcessingServiceImpl(ProcessingRepository processingRepository, OrdersService ordersService) {
+    public ProcessingServiceImpl(ProcessingRepository processingRepository) {
         this.processingRepository = processingRepository;
-        this.ordersService = ordersService;
-    }
-
-    @Override
-    public boolean rejectProcessing(Long id) {
-        Optional<Processing> optionalProcessing = processingRepository.findById(id);
-
-        Processing processing = optionalProcessing.get();
-
-        processing.setState(State.REJECTED);
-        processingRepository.save(processing);
-
-        return true;
     }
 
     @Override
@@ -38,12 +23,78 @@ public class ProcessingServiceImpl implements ProcessingService {
     }
 
     @Override
-    public boolean addProcessingForOrder(Long orders_Id) {
+    public Processing findById(Long processingId) {
 
-        List<Orders> orders = ordersService.findAll();
+        if (processingId == null || processingId <= 0) {
+            return null;
+        }
 
-        Processing processing = new Processing(0L, State.IN_PROGRESS, orders.get(0));
+        return processingRepository.findById(processingId).get();
+    }
+
+    @Override
+    public boolean addProcessingForOrder(Orders orders) {
+
+        if (orders == null) {
+            return false;
+        }
+
+        Processing processing = new Processing(0L, State.IN_PROGRESS, orders);
         processingRepository.save(processing);
         return true;
+    }
+
+    @Override
+    public boolean changeStateOfProcessing(Long processingId, State state) {
+
+        if (processingId == null || processingId <= 0) {
+            return false;
+        }
+
+        Optional<Processing> optionalProcessing = processingRepository.findById(processingId);
+
+        if (optionalProcessing.isEmpty()) {
+            return false;
+        }
+
+        if (state == null) {
+            return false;
+        }
+
+        Processing processing = optionalProcessing.get();
+        processing.setState(state);
+        processingRepository.save(processing);
+
+        return true;
+    }
+
+    @Override
+    public boolean deleteProcessing(Long processingId) {
+
+        if (processingId == null || processingId <= 0) {
+            return false;
+        }
+
+        Optional<Processing> optionalProcessing = processingRepository.findById(processingId);
+
+        if (optionalProcessing.isEmpty()) {
+            return false;
+        }
+
+        Processing processing = optionalProcessing.get();;
+        processingRepository.delete(processing);
+
+        return true;
+    }
+
+    @Override
+    public Processing findByOrdersId(Long ordersId) {
+
+        if (ordersId == null || ordersId <= 0) {
+            return null;
+        }
+
+        Processing processing = processingRepository.findByOrders_Id(ordersId);
+        return processing;
     }
 }

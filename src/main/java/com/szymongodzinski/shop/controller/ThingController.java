@@ -95,9 +95,10 @@ public class ThingController {
     }
 
     @DeleteMapping(path = "/thing/", produces = { "application/json" })
-    public ResponseEntity<?> deleteThing(@RequestHeader("name") String name) {
+    public ResponseEntity<?> deleteThing(@RequestHeader("name") String name,
+                                         @RequestHeader("id") Long id) {
 
-        Thing thing = new Thing(0L, name, BigDecimal.ZERO , 0);
+        Thing thing = new Thing(id, name, BigDecimal.ZERO , 0);
 
         boolean isSuccess = thingService.delete(thing);
 

@@ -11,8 +11,14 @@ values(1,'Szymon Godzinski');
 insert into orders (id, customer)
 values(2,'Szymon Godzinski2');
 
-insert into thing_orders (order_id, thing_id)
-values(1,1);
-insert into thing_orders (order_id, thing_id)
-values(2,2);
+insert into order_things (id, quantity, thing_id)
+values(1, 50, 1);
+insert into order_things (id, quantity, thing_id)
+values(2, 20, 2);
+
+insert into orders_order_things (orders_id, order_things_id)
+values(1, 1);
+insert into orders_order_things (orders_id, order_things_id)
+values(2, 2);
+
 

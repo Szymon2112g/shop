@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ThingServiceImpl implements ThingService {
@@ -24,11 +25,17 @@ public class ThingServiceImpl implements ThingService {
     @Override
     public Thing getById(Long id) {
 
-        if (id == null) {
+        if (id == null || id <= 0) {
             return null;
         }
 
-        return thingRepository.getOne(id);
+        Optional<Thing> optionalThing = thingRepository.findById(id);
+
+        if (optionalThing.isEmpty()) {
+            return null;
+        }
+
+        return optionalThing.get();
     }
 
     @Override
@@ -61,11 +68,23 @@ public class ThingServiceImpl implements ThingService {
     @Override
     public boolean delete(Thing thing) {
 
-        if (thing == null || thing.getName() == null || thing.getName().equals("")) {
+        if (thing == null) {
             return false;
         }
 
-        Thing thingFoundInDataBase = thingRepository.findByName(thing.getName());
+        Thing thingFoundInDataBase;
+
+        if (thing.getName() == null || thing.getName().equals("")) {
+
+            if (thing.getId() == null || thing.getId() <= 0) {
+                return false;
+            }
+
+            thingFoundInDataBase = thingRepository.findById(thing.getId()).get();
+
+        } else {
+            thingFoundInDataBase = thingRepository.findByName(thing.getName());
+        }
 
         if (thingFoundInDataBase == null) {
             return false;

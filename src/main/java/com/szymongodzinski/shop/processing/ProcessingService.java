@@ -6,9 +6,10 @@ import java.util.List;
 
 public interface ProcessingService {
 
-    public boolean rejectProcessing(Long id);
-
     public List<Processing> findAll();
-
-    public boolean addProcessingForOrder(Long orders_Id);
+    public Processing findById(Long processingId);
+    public boolean addProcessingForOrder(Orders orders);
+    public boolean changeStateOfProcessing(Long processingId, State state);
+    public boolean deleteProcessing(Long processingId);
+    public Processing findByOrdersId(Long ordersId);
 }
