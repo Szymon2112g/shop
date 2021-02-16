@@ -29,7 +29,14 @@ public class ProcessingServiceImpl implements ProcessingService {
             return null;
         }
 
-        return processingRepository.findById(processingId).get();
+        Optional<Processing> optionalProcessing = processingRepository.findById(processingId);
+
+        if (optionalProcessing.isEmpty()) {
+            return null;
+        }
+
+        Processing processing = optionalProcessing.get();
+        return processing;
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.szymongodzinski.shop.processing;
 import com.szymongodzinski.shop.order.Orders;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Entity
 public class Processing {
@@ -48,5 +49,20 @@ public class Processing {
 
     public void setOrders(Orders orders) {
         this.orders = orders;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Processing that = (Processing) o;
+        return id.equals(that.id) &&
+                state.equals(that.state) &&
+                orders.equals(that.orders);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, state, orders);
     }
 }

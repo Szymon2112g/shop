@@ -20,9 +20,16 @@ public class ThingController {
         this.thingService = thingService;
     }
 
-    @GetMapping(path = "/thing/all")
-    public List<Thing> findAllThings() {
-        return thingService.findAll();
+    @GetMapping(path = "/thing/all", produces = { "application/json" })
+    public ResponseEntity<?> findAllThings() {
+
+        List<Thing> thingList = thingService.findAll();
+
+        if(thingList == null || thingList.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.ok(thingList);
     }
 
     @PostMapping(path = "/thing/", produces = { "application/json" })
@@ -31,6 +38,7 @@ public class ThingController {
         if (!thingBody.containsKey("name") || !thingBody.containsKey("quantity") || !thingBody.containsKey("price")) {
             return ResponseEntity.badRequest().header("Cause", "body should have field \"name\", " +
                     "\"quantity\" and \"price\"").build();
+
         }
 
         String name = thingBody.get("name");
@@ -57,7 +65,7 @@ public class ThingController {
         Thing thing = new Thing(0L, name, new BigDecimal(price), quantityInt);
 
         if (!thingService.add(thing)) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().header("Cause", "Cant add thing").build();
         }
 
         return ResponseEntity.ok().build();
@@ -83,6 +91,20 @@ public class ThingController {
                                          @RequestParam("quantity") int quantity,
                                          @RequestParam("price") BigDecimal price) {
 
+        if (name == null || name.equals("")) {
+            return ResponseEntity.badRequest().header("Cause", "Param name is empty").build();
+        }
+
+        if (quantity <= 0) {
+            return ResponseEntity.badRequest()
+                    .header("Cause", "Param quantity is equal or lower than zero").build();
+        }
+
+        if (price == null || price.doubleValue() <= 0) {
+            return ResponseEntity.badRequest()
+                    .header("Cause", "Param price is equal or lower than zero").build();
+        }
+
         Thing thing = new Thing(0L, name, price, quantity);
 
         boolean isSuccess = thingService.update(thing);
@@ -98,12 +120,20 @@ public class ThingController {
     public ResponseEntity<?> deleteThing(@RequestHeader("name") String name,
                                          @RequestHeader("id") Long id) {
 
+        if (name == null || name.equals("")) {
+            if (id <= 0) {
+                return ResponseEntity.badRequest()
+                        .header("Cause", "Param name and id are empty, you have to provide one of them").build();
+            }
+        }
+
         Thing thing = new Thing(id, name, BigDecimal.ZERO , 0);
 
         boolean isSuccess = thingService.delete(thing);
 
         if (!isSuccess) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.notFound()
+                    .header("Cause", "not found thing").build();
         }
 
         return ResponseEntity.ok().build();

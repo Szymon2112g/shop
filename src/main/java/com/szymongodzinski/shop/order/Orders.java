@@ -4,6 +4,7 @@ import com.szymongodzinski.shop.order.OrderThings.OrderThings;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 public class Orders {
@@ -49,5 +50,20 @@ public class Orders {
 
     public void setOrdersThings(List<OrderThings> orderThings) {
         this.orderThings = orderThings;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Orders orders = (Orders) o;
+        return Objects.equals(id, orders.id) &&
+                Objects.equals(customerName, orders.customerName) &&
+                Objects.equals(orderThings, orders.orderThings);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, customerName, orderThings);
     }
 }

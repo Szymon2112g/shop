@@ -38,7 +38,9 @@ public class OrdersServiceImpl implements OrdersService {
             return null;
         }
 
-        return ordersOptional.get();
+        Orders orders = ordersOptional.get();
+
+        return orders;
     }
 
     @Override
@@ -54,9 +56,15 @@ public class OrdersServiceImpl implements OrdersService {
 
         List<OrderThings> orderThingsFromDB = new ArrayList<>();
 
-        orderThings.forEach(orderThings1 -> {
-            orderThingsFromDB.add(orderThingsRepository.save(orderThings1));
-        });
+        for (OrderThings tmp: orderThings) {
+            if (tmp.getThingId() == null || tmp.getThingId() <= 0) {
+                return false;
+            }
+            if (tmp.getQuantity() <= 0) {
+                return false;
+            }
+            orderThingsFromDB.add(orderThingsRepository.save(tmp));
+        }
 
         if (orderThingsFromDB == null || orderThingsFromDB.isEmpty()) {
             return false;

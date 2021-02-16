@@ -27,7 +27,7 @@ public class ThingServiceImplTest {
 
         List<Thing> thingList = thingService.findAll();
 
-        assertAll("This is group of assertions for cart",
+        assertAll(
                 () -> assertThat(thingList, hasSize(4)),
                 () -> assertThat(thingList, hasItem(new Thing(1L, "Bread", new BigDecimal(2), 5))),
                 () -> assertThat(thingList, hasItem(new Thing(2L, "Cheese", new BigDecimal(3), 2))),
@@ -312,6 +312,67 @@ public class ThingServiceImplTest {
         Thing receivedThing = thingService.getByName("aaa");
 
         assertThat(receivedThing, equalTo(null));
+    }
+
+    @Test
+    void update_ShouldReturnFalseIfNameIsEmpty() {
+        ThingRepository thingRepository = mock(ThingRepository.class);
+        ThingService thingService = new ThingServiceImpl(thingRepository);
+
+        Thing thing = new Thing(1L,"", new BigDecimal(1),1);
+        boolean isSuccess = thingService.update(thing);
+
+        assertThat(isSuccess, is(false));
+    }
+
+    @Test
+    void update_ShouldCall_FindByName_MethodIfNameExist() {
+        ThingRepository thingRepository = mock(ThingRepository.class);
+        ThingService thingService = new ThingServiceImpl(thingRepository);
+
+        Thing thing = new Thing(1L,"Egg", new BigDecimal(1),1);
+        thingService.update(thing);
+
+        verify(thingRepository).findByName("Egg");
+    }
+
+    @Test
+    void update_ShouldReturnFalseIfThingNotExistInRepository() {
+        ThingRepository thingRepository = mock(ThingRepository.class);
+        ThingService thingService = new ThingServiceImpl(thingRepository);
+
+        given(thingRepository.findByName("Egg")).willReturn(null);
+
+        Thing thing = new Thing(1L,"Egg", new BigDecimal(1),1);
+        boolean isSuccess = thingService.update(thing);
+
+        assertThat(isSuccess, is(false));
+    }
+
+    @Test
+    void update_ShouldReturnTrueIfRepositoryFindThing() {
+        ThingRepository thingRepository = mock(ThingRepository.class);
+        ThingService thingService = new ThingServiceImpl(thingRepository);
+
+        Thing thing = new Thing(1L,"Egg", new BigDecimal(1),1);
+        given(thingRepository.findByName("Egg")).willReturn(thing);
+
+        boolean isSuccess = thingService.update(thing);
+
+        assertThat(isSuccess, is(true));
+    }
+
+    @Test
+    void update_ShouldCall_Save_MethodIfEverythingIsOk() {
+        ThingRepository thingRepository = mock(ThingRepository.class);
+        ThingService thingService = new ThingServiceImpl(thingRepository);
+
+        Thing thing = new Thing(1L,"Egg", new BigDecimal(1),1);
+        given(thingRepository.findByName("Egg")).willReturn(thing);
+
+        thingService.update(thing);
+
+        verify(thingRepository).save(thing);
     }
 
     private List<Thing> prepareThingData() {
